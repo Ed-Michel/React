@@ -3,34 +3,26 @@ import { Todo } from '../model';
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import "./styles.css"
+import { useTodoState } from '../context/Context';
 
 type Props = {
     todo: Todo;
-    todos: Todo[];
-    setTodos:  React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
-const SingleTodo = ({ todo, todos, setTodos}: Props) => {
+const SingleTodo: React.FC<Props> = ({ todo }) => {
 
+const { dispatch } = useTodoState(); // Usar el dispatch para eliminar o completar tareas
 const [edit, setEdit] = useState<boolean>  (false); 
 const [editTodo, setEditTodo] = useState<string>(todo.todo); 
-
-const handleDone = (id: number) => {
-    setTodos(todos.map((todo) => 
-        todo.id === id?{...todo, isDone:!todo.isDone}:todo))
-};
-
-const handleDelete = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-};
 
 const handleEdit = (e:React.FormEvent, id: number) =>
 {
     e.preventDefault();
 
-    setTodos(todos.map((todo) => (
-        todo.id === id?{...todo, todo:editTodo}:todo
-    )));
+    dispatch({
+        type: "edit",
+        payload: { id, todo: editTodo }
+    });
     setEdit(false);
 }; 
 
@@ -60,18 +52,25 @@ return (
     }
      <div>
         <span className='icon' 
-        onClick={ () => {
-            if(!edit && !todo.isDone){
-                setEdit(!edit)
-            }
-        }}
+        onClick={() => 
+            !edit && 
+            !todo.isDone &&
+            setEdit(true)}
         >
             <AiFillEdit />
         </span>
-        <span className='icon'>
-            <AiOutlineDelete onClick={() => handleDelete(todo.id)}/>
+        <span className='icon' 
+        onClick={() => dispatch({ 
+            type: "remove", 
+            payload: todo.id
+        })}>
+            <AiOutlineDelete />
         </span>
-        <span className='icon' onClick={() => handleDone(todo.id)}>
+        <span className='icon' 
+        onClick={() => dispatch({
+            type: "done",
+            payload: todo.id
+        })}>
             <MdDone />
         </span>
      </div>

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import './styles.css'
+import { useTodoState } from '../context/Context';
 
 interface Props{
     todo: string;
@@ -9,8 +10,9 @@ interface Props{
 
 const InputField: React.FC<Props> = ({ todo, setTodo, handleAdd }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  
-    return ( 
+  const { dispatch } = useTodoState(); // Usa el hook para obtener el dispatch
+
+  return ( 
   <form className='input' onSubmit={ (e) => {
         handleAdd(e)
         inputRef.current?.blur();
@@ -24,7 +26,14 @@ const InputField: React.FC<Props> = ({ todo, setTodo, handleAdd }) => {
         onChange={(e) => setTodo(e.target.value)}
     />
      
-    <button className='input_submit' type='submit'>Go</button>
+    <button className='input_submit' type='submit'
+    onClick={() => {
+      dispatch({
+        type: "add",
+        payload: todo,
+      })
+    }}
+    >Go</button>
   </form>
   )
 }
